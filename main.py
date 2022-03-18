@@ -17,7 +17,7 @@ def createOutput(collection):
 
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
 
-    for secret in collection:
+    for secret in collection.json():
         pprint(secret)
         secret_type = secret['type']
         secret_file = secret['filename']
