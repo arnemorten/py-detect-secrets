@@ -2,12 +2,11 @@ name: "Python Container Action Template"
 description: "Get started with Python Container actions"
 author: "Jacob Tomlinson"
 inputs:
-  myInput:
-    description: "Input to use"
-    default: "world"
+  FILES:
+    description: "Files to scan"
 outputs:
-  myOutput:
-    description: "Output from the action"
+  secrethook:
+    description: "Secrets detected"
 runs:
   using: "docker"
   image: "Dockerfile"
