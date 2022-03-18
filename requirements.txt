@@ -1,0 +1,5 @@
+requests
+detect-secrets
+prettyprint
+pygithub
+cffi
