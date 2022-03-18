@@ -30,6 +30,8 @@ def createIssue(body):
     sha = os.environ["GITHUB_SHA"] 
     open_issues = repo.get_issues(state='open')
     for issue in open_issues:
+        print(issue.title)
+        print(issue)
         if sha in issue.title:
             print("duplicate detected")
     i = repo.create_issue(
