@@ -19,10 +19,10 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"
     pprint(collection)
     pprint(collection.json())
     for secret in collection.json():
-        print(json.loads(secret))
-        secret_type = secret['type']
-        secret_file = secret['filename']
-        secret_line = secret['line_number']
+        ssecret = json.loads(secret)
+        secret_type = ssecret['type']
+        secret_file = ssecret['filename']
+        secret_line = ssecret['line_number']
         template += f"""
 **Secret Type:** {secret_type}
 **File:** {secret_file}
