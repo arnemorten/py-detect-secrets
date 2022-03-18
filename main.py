@@ -8,7 +8,7 @@ from detect_secrets.core.scan import get_files_to_scan
 from pprint import pprint
 from github import Github
 import sys
-#from multiprocessing import freeze_support
+# from multiprocessing import freeze_support
 def createOutput(collection):
     pprint(collection)
     commit = os.environ["GITHUB_SHA"] 
@@ -18,9 +18,10 @@ def createOutput(collection):
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
 
     for secret in collection:
-        secret_type = secret.type
-        secret_file = secret.filename
-        secret_line = secret.line_number
+        pprint(secret)
+        secret_type = secret['type']
+        secret_file = secret['filename']
+        secret_line = secret['line_number']
         template += f"""
 **Secret Type:** {secret_type}
 **File:** {secret_file}
@@ -49,9 +50,6 @@ def createIssue(body):
     except:
         print("Label already exist")
 
-    #if not "LeakedSecret" in repo.get_labels():
-    #   repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
-
     sha = os.environ["GITHUB_SHA"] 
     open_issues = repo.get_issues(state='open')
     for issue in open_issues:
@@ -69,17 +67,17 @@ def createIssue(body):
     )
 
 def main():
-    #for k, v in sorted(os.environ.items()):
-    #    print(k+':', v)
-    #    print('\n')
-    #print("----------------------")
+    # for k, v in sorted(os.environ.items()):
+    #     print(k+':', v)
+    #     print('\n')
+    # print("----------------------")
     
     files = json.loads(os.environ["INPUT_NEW_FILES"])
     
     secrets = SecretsCollection()
 
     with default_settings():
-        #secrets.scan_file(r"test.txt")
+        # secrets.scan_file(r"test.txt")
         for f in files:
             print(f"scanning {f}")
             secrets.scan_file(f)
@@ -89,11 +87,11 @@ def main():
 
     new_secrets = secrets - base
 
-    #print(json.dumps(base.json(), indent=2))
-    #print("-----------------------------------------")
-    #print(json.dumps(secrets.json(), indent=2))
-    #print("-----------------------------------------")
-    #print(json.dumps(new_secrets.json(), indent=2))
+    # print(json.dumps(base.json(), indent=2))
+    # print("-----------------------------------------")
+    # print(json.dumps(secrets.json(), indent=2))
+    # print("-----------------------------------------")
+    # print(json.dumps(new_secrets.json(), indent=2))
 
     if new_secrets:
         my_output = createOutput(new_secrets)
