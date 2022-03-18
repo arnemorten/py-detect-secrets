@@ -6,6 +6,7 @@ from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
 from detect_secrets.core.scan import get_files_to_scan
 from pprint import pprint
+import sys
 #from multiprocessing import freeze_support
 
 def main():
@@ -17,9 +18,9 @@ def main():
     files = json.loads(os.environ["INPUT_NEW_FILES"])
     baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
 
-    pprint(files)
-    my_output = f"Hello: {files}"
-    print(my_output)
+    #pprint(files)
+    #my_output = f"Hello: {files}"
+    #print(my_output)
 
 
     secrets = SecretsCollection()
@@ -28,8 +29,8 @@ def main():
     with default_settings():
         #secrets.scan_file(r"test.txt")
         for f in files:
-            print(f)
-            secrets.scan_file('test.txt')
+            print(f"scanning {f}")
+            secrets.scan_file(f)
 
 
 
@@ -43,8 +44,10 @@ def main():
     print("-----------------------------------------")
     print(json.dumps(new_secrets.json(), indent=2))
 
-    my_output = f"Secrets found: {new_secrets}"
-    print(f"::set-output name=secrethook::{my_output}")
+    if new_secrets:
+        my_output = f"Secrets found: {new_secrets}"
+        print(f"::set-output name=secrethook::{my_output}")
+        sys.exit('Secrets detected')
 
 if __name__ == "__main__":
     main()
