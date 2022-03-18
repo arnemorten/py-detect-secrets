@@ -37,6 +37,9 @@ def main():
     print("-----------------------------------------")
     print(json.dumps(new_secrets.json(), indent=2))
 
+    my_output = f"Secrets found: {new_secrets}"
+    print(f"::set-output name=secrethook::{my_output}")
+
 if __name__ == "__main__":
     main()
 
