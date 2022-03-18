@@ -11,7 +11,32 @@ import sys
 #from multiprocessing import freeze_support
 def createOutput(collection):
     pprint(collection)
-    return '<br />'.join(json.dumps(collection.json(), indent=2).splitlines())
+    commit = os.environ["GITHUB_SHA"] 
+    branch = os.environ["GITHUB_REF"] 
+    template = f"""### Potential leaked secret
+
+We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
+
+    for secret in collection:
+        secret_type = secret.type
+        secret_file = secret.filename
+        secret_line = secret.line_number
+        template += f"""
+**Secret Type:** {secret_type}
+**File:** {secret_file}
+**Line:** {secret_line}"""
+
+    template += f"""
+### Possible mitigations:
+
+- Immediately change the password and update your code with no hardcoded values. 
+- Mark false positives with an inline comment
+- Update baseline file
+
+For more information check the [docsite](url)
+"""
+
+    return template
 
 def createIssue(body): 
     g = Github(os.environ["GITHUB_TOKEN"])
@@ -22,7 +47,7 @@ def createIssue(body):
     try:
         repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
     except:
-        print("Label probably exist")
+        print("Label already exist")
 
     #if not "LeakedSecret" in repo.get_labels():
     #   repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
@@ -30,10 +55,10 @@ def createIssue(body):
     sha = os.environ["GITHUB_SHA"] 
     open_issues = repo.get_issues(state='open')
     for issue in open_issues:
-        print(issue.title)
-        print(issue)
         if sha in issue.title:
             print("duplicate detected")
+            return 
+
     i = repo.create_issue(
         title=f"Possible new secret in commit: {sha}",
         body=body,
@@ -50,15 +75,8 @@ def main():
     #print("----------------------")
     
     files = json.loads(os.environ["INPUT_NEW_FILES"])
-    baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
-
-    #pprint(files)
-    #my_output = f"Hello: {files}"
-    #print(my_output)
-
-
+    
     secrets = SecretsCollection()
-    #secrets.scan_files()
 
     with default_settings():
         #secrets.scan_file(r"test.txt")
@@ -66,8 +84,7 @@ def main():
             print(f"scanning {f}")
             secrets.scan_file(f)
 
-
-
+    baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
     base = baseline.load(baseline.load_from_file(baseline_file))
 
     new_secrets = secrets - base
