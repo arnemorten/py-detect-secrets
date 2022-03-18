@@ -8,6 +8,9 @@ from detect_secrets.core.scan import get_files_to_scan
 from pprint import pprint
 import sys
 #from multiprocessing import freeze_support
+def createOutput(collection):
+    pprint(collection)
+    return json.dumps(collection.json(), indent=2)
 
 def main():
     #for k, v in sorted(os.environ.items()):
@@ -45,7 +48,7 @@ def main():
     print(json.dumps(new_secrets.json(), indent=2))
 
     if new_secrets:
-        my_output = f"Secrets found: {new_secrets}"
+        my_output = createOutput(new_secrets)
         print(f"::set-output name=secrethook::{my_output}")
         sys.exit('Secrets detected')
 
