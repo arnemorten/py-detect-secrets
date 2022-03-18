@@ -6,11 +6,29 @@ from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
 from detect_secrets.core.scan import get_files_to_scan
 from pprint import pprint
+from github import Github
 import sys
 #from multiprocessing import freeze_support
 def createOutput(collection):
     pprint(collection)
-    return json.dumps(collection.json(), indent=2)
+    return '<br />'.join(json.dumps(collection.json(), indent=2).splitlines())
+
+def createIssue(body): 
+    g = Github(os.environ["GITHUB_TOKEN"])
+    repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
+    
+    if not repo.get_label("LeakedSecret"):
+        repo.create_label("LeakedSecret", "red", description="Possible leaked secret")
+
+    sha = os.environ["GITHUB_SHA"] 
+    i = repo.create_issue(
+        title=f"Possible new secret in commit: {sha}",
+        body=body,
+        assignee=os.environ["GITHUB_REF"],
+        labels=[
+            repo.get_label("LeakedSecret")
+        ]
+    )
 
 def main():
     #for k, v in sorted(os.environ.items()):
@@ -49,6 +67,7 @@ def main():
 
     if new_secrets:
         my_output = createOutput(new_secrets)
+        createIssue(my_output)
         print(f"::set-output name=secrethook::{my_output}")
         sys.exit('Secrets detected')
 
