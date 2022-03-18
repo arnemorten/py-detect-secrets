@@ -18,7 +18,7 @@ def createIssue(body):
     repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
 
     if not "LeakedSecret" in repo.get_labels():
-        repo.create_label("LeakedSecret", "red", description="Possible leaked secret")
+        repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
 
     sha = os.environ["GITHUB_SHA"] 
     i = repo.create_issue(
