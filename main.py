@@ -23,11 +23,15 @@ def createIssue(body):
         repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
     except:
         print("Label probably exist")
-        
+
     #if not "LeakedSecret" in repo.get_labels():
     #   repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
 
     sha = os.environ["GITHUB_SHA"] 
+    open_issues = repo.get_issues(state='open')
+    for issue in open_issues:
+        if sha in issue.title:
+            print("duplicate detected")
     i = repo.create_issue(
         title=f"Possible new secret in commit: {sha}",
         body=body,
