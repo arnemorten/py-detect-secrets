@@ -17,7 +17,13 @@ def createIssue(body):
     g = Github(os.environ["GITHUB_TOKEN"])
     repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
 
-    pprint(repo.get_labels())
+    for label in repo.get_labels():
+            pprint(label)
+    try:
+        repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
+    except:
+        print("Label probably exist")
+        
     #if not "LeakedSecret" in repo.get_labels():
     #   repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
 
