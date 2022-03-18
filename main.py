@@ -60,11 +60,11 @@ def main():
 
     new_secrets = secrets - base
 
-    print(json.dumps(base.json(), indent=2))
-    print("-----------------------------------------")
-    print(json.dumps(secrets.json(), indent=2))
-    print("-----------------------------------------")
-    print(json.dumps(new_secrets.json(), indent=2))
+    #print(json.dumps(base.json(), indent=2))
+    #print("-----------------------------------------")
+    #print(json.dumps(secrets.json(), indent=2))
+    #print("-----------------------------------------")
+    #print(json.dumps(new_secrets.json(), indent=2))
 
     if new_secrets:
         my_output = createOutput(new_secrets)
