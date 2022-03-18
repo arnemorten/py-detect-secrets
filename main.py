@@ -13,7 +13,7 @@ def main():
     #    print('\n')
     #print("----------------------")
     
-    files = json.loads(os.environ.get["input_new_files"])
+    files = json.loads(os.environ["input_new_files"])
     baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
 
 
