@@ -8,9 +8,12 @@ from detect_secrets.core.scan import get_files_to_scan
 #from multiprocessing import freeze_support
 
 def main():
-    print("hello world")
-    print(os.environ["new_files"])
-    files = json.loads(os.environ["new_files"])
+    for k, v in sorted(os.environ.items()):
+        print(k+':', v)
+        print('\n')
+    print("----------------------")
+    print(os.environ['new_files'])
+    files = json.loads(os.environ.get["new_files"])
     baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
 
 
