@@ -1,8 +1,7 @@
-name: "Python Container Action Template"
-description: "Get started with Python Container actions"
-author: "Jacob Tomlinson"
+name: "Detect Secrets Action"
+author: "Arne Morten Johansen"
 inputs:
-  FILES:
+  new_files:
     description: "Files to scan"
 outputs:
   secrethook:

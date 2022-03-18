@@ -8,12 +8,13 @@ from detect_secrets.core.scan import get_files_to_scan
 #from multiprocessing import freeze_support
 
 def main():
-    print(os.environ["FILES"])
-    files = json.loads(os.environ["FILES"])
-    baseline_file = os.environ["DS_BASELINE_FILE"]
+    print("hello world")
+    print(os.environ["new_files"])
+    files = json.loads(os.environ["new_files"])
+    baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
 
 
-    my_output = f"Hello {files}"
+    my_output = f"Hello: {files}"
     print(files)
 
 
@@ -28,7 +29,7 @@ def main():
 
 
 
-    base = baseline.load(baseline.load_from_file(r".secrets.baseline"))
+    base = baseline.load(baseline.load_from_file(baseline_file))
 
     new_secrets = secrets - base
 
