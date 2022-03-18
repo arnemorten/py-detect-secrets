@@ -24,7 +24,7 @@ def createIssue(body):
     i = repo.create_issue(
         title=f"Possible new secret in commit: {sha}",
         body=body,
-        assignee=os.environ["GITHUB_REF"],
+        assignee=os.environ["GITHUB_ACTOR"],
         labels=[
             repo.get_label("LeakedSecret")
         ]
