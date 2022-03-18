@@ -19,8 +19,7 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"
     pprint(collection)
     pprint(collection.json())
     for secret in collection.json():
-        for key in secret:
-            pprint(secret,  key)
+        print(json.loads(secret))
         secret_type = secret['type']
         secret_file = secret['filename']
         secret_line = secret['line_number']
