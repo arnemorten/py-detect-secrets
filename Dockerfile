@@ -1,14 +1,13 @@
-FROM python:3-slim AS builder
+FROM ubuntu:latest
 ADD . /app
 WORKDIR /app
+ENV DEBIAN_FRONTEND=noninteractive
 
-# We are installing a dependency here directly into our app source dir 
-RUN pip install --target=/app requests detect-secrets prettyprint pygithub cffi
-  
-# A distroless container image with Python and some basics like SSL certificates
-# https://github.com/GoogleContainerTools/distroless
-FROM gcr.io/distroless/python3-debian10
-COPY --from=builder /app /app
-WORKDIR /app
-ENV PYTHONPATH /app
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip
+RUN pip3 install --target=/app requests detect-secrets prettyprint pygithub cffi
+
 CMD ["/app/main.py"]
