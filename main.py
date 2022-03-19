@@ -15,26 +15,26 @@ def createOutput(Collection):
     branch = os.getenv("GITHUB_REF", "TestBranch") 
     template = f"""### Potential leaked PotentialSecret
 
-                We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
+We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
 
     for PotentialSecret in Collection:     
         secret_type = PotentialSecret[1].type
         secret_file = PotentialSecret[1].filename
         secret_line = PotentialSecret[1].line_number
         template += f"""
-        **Secret Type:** {secret_type}
-        **File:** {secret_file}
-        **Line:** {secret_line}"""
+**Secret Type:** {secret_type}
+**File:** {secret_file}
+**Line:** {secret_line}"""
 
     template += f"""
-    ### Possible mitigations:
+### Possible mitigations:
 
-    - Immediately change the password and update your code with no hardcoded values. 
-    - Mark false positives with an inline comment
-    - Update baseline file
+- Immediately change the password and update your code with no hardcoded values. 
+- Mark false positives with an inline comment
+- Update baseline file
 
-    For more information check the [docsite](url)
-    """
+For more information check the [docsite](url)
+"""
 
     return template
 
@@ -95,7 +95,7 @@ def main():
     if new_secrets:
         my_output = createOutput(new_secrets)
         createIssue(my_output)
-        print(f"::set-output name=secrethook::{my_output}")
+        print(f"::set-output name=secrethook::secret_detected")
         sys.exit('Secrets detected')
 
     print("No secrets found")
