@@ -3,6 +3,9 @@ author: "Arne Morten Johansen"
 inputs:
   new_files:
     description: "Files to scan"
+  skip_issue:
+    description: "Skips Issue creation in repo if set to true"
+    default: false
 outputs:
   secrethook:
     description: "Secrets detected"
