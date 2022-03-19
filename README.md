@@ -43,13 +43,14 @@ jobs:
 | Input                                             | Description                                        |
 |------------------------------------------------------|-----------------------------------------------|
 | `new_files`  | list of files in json format    |
+| `skip_issue`  | doesnt create issue if defined to `true`   |
 
 
 ### Outputs
 
 | Output                                             | Description                                        |
 |------------------------------------------------------|-----------------------------------------------|
-| `myOutput`  | An example output (returns 'Hello world')    |
+| `secrethook`  | returns "secret_detected" if a secret is found    |
 
 
 ### Using outputs
