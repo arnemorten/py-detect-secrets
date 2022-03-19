@@ -86,7 +86,8 @@ def main():
 
     if new_secrets:
         my_output = createOutput(new_secrets)
-        createIssue(my_output)
+        if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
+            createIssue(my_output)
         print(f"::set-output name=secrethook::secret_detected")
         sys.exit('Secrets detected')
 

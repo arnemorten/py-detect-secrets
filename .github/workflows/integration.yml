@@ -12,6 +12,7 @@ jobs:
         uses: arnemorten/py-detect-secrets@master
         with: 
           new_files: '["secrets.txt"]'
+          skip_issue: 'true'
         env: 
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Check outputs
