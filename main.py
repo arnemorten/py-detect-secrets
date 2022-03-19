@@ -74,14 +74,17 @@ def main():
     files = json.loads(os.getenv("INPUT_NEW_FILES", json.dumps(['secrets.txt'])))
     
     secrets = SecretsCollection()
+    baseline_file = ".secrets.baseline" #hardcode life
 
     with default_settings():
         # secrets.scan_file(r"test.txt")
         for f in files:
-            print(f"scanning {f}")
-            secrets.scan_file(f)
+            if f != baseline_file:
+                print(f"scanning {f}")
+                secrets.scan_file(f)
 
-    baseline_file = ".secrets.baseline" #os.environ["DS_BASELINE_FILE"]
+    #os.environ["DS_BASELINE_FILE"]
+
     base = baseline.load(baseline.load_from_file(baseline_file))
 
     new_secrets = secrets - base
