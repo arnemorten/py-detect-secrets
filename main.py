@@ -1,5 +1,4 @@
 import os
-import requests  # noqa We are just importing this to prove the dependency installed correctly
 import json
 from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
@@ -10,24 +9,24 @@ from github import Github
 import sys
 # from multiprocessing import freeze_support
 
-def createOutput(collection):
-    pprint(collection)
+def createOutput(Collection):
+    pprint(Collection)
     commit = os.environ["GITHUB_SHA"] 
     branch = os.environ["GITHUB_REF"] 
-    template = f"""### Potential leaked secret
+    template = f"""### Potential leaked PotentialSecret
 
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
-    pprint(collection)
-    pprint(collection.json())
+    pprint(Collection)
+    pprint(Collection.json())
     
-    for secret in collection.json():
-        print(secret)
+    for PotentialSecret in Collection:
+        print(PotentialSecret)
         print("----dir___")
-        print(dir(secret))
+        print(dir(PotentialSecret))
         
-        secret_type = secret['type']
-        secret_file = secret['filename']
-        secret_line = secret['line_number']
+        secret_type = PotentialSecret.type
+        secret_file = PotentialSecret.filename
+        secret_line = PotentialSecret.line_number
         template += f"""
 **Secret Type:** {secret_type}
 **File:** {secret_file}
@@ -52,7 +51,7 @@ def createIssue(body):
     for label in repo.get_labels():
             pprint(label)
     try:
-        repo.create_label("LeakedSecret", "FF0000", description="Possible leaked secret")
+        repo.create_label("LeakedSecret", "FF0000", description="Possible leaked PotentialSecret")
     except:
         print("Label already exist")
 
@@ -64,7 +63,7 @@ def createIssue(body):
             return 
 
     i = repo.create_issue(
-        title=f"Possible new secret in commit: {sha}",
+        title=f"Possible new PotentialSecret in commit: {sha}",
         body=body,
         assignee=os.environ["GITHUB_ACTOR"],
         labels=[
