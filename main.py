@@ -47,7 +47,8 @@ def createIssue(body):
     try:
         repo.create_label("LeakedSecret", "FF0000",
                           description="Possible leaked PotentialSecret")
-    except:
+    except Exception as exception:
+        print(f"{type(err).__name__} was raised: {err}")
         print("Label already exist")
 
     sha = os.environ["GITHUB_SHA"]
@@ -88,7 +89,7 @@ def main():
         my_output = createOutput(new_secrets)
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
             createIssue(my_output)
-        print(f"::set-output name=secrethook::secret_detected")
+        print("::set-output name=secrethook::secret_detected")
         sys.exit('Secrets detected')
 
     print("No secrets found")
