@@ -13,9 +13,11 @@ def createOutput(Collection):
     pprint(Collection)
     commit = os.getenv("GITHUB_SHA", "TestSHA") 
     branch = os.getenv("GITHUB_REF", "TestBranch") 
-    template = f"""### Potential leaked PotentialSecret
+    template = f"""### Potential secret in commit
 
-We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
+We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
+
+"""
 
     for PotentialSecret in Collection:     
         secret_type = PotentialSecret[1].type
@@ -24,7 +26,9 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"
         template += f"""
 **Secret Type:** {secret_type}
 **File:** {secret_file}
-**Line:** {secret_line}"""
+**Line:** {secret_line}
+
+"""
 
     template += f"""
 ### Possible mitigations:
@@ -41,9 +45,6 @@ For more information check the [docsite](url)
 def createIssue(body): 
     g = Github(os.getenv("GITHUB_TOKEN", "testtoken"))
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY", "tesrpo"))
-
-    for label in repo.get_labels():
-            pprint(label)
     try:
         repo.create_label("LeakedSecret", "FF0000", description="Possible leaked PotentialSecret")
     except:
@@ -52,12 +53,12 @@ def createIssue(body):
     sha = os.environ["GITHUB_SHA"] 
     open_issues = repo.get_issues(state='open')
     for issue in open_issues:
-        if sha in issue.title:
-            print("duplicate detected")
+        if sha in issue.title: 
+            print("duplicate detected. Skipping creating new issue")
             return 
 
     i = repo.create_issue(
-        title=f"Possible new PotentialSecret in commit: {sha}",
+        title=f"Possible new secret in commit: {sha}",
         body=body,
         assignee=os.environ["GITHUB_ACTOR"],
         labels=[
