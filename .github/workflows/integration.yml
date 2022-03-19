@@ -10,6 +10,8 @@ jobs:
         uses: arnemorten/py-detect-secrets@master
         with: 
           new_files: '["secrets.txt"]'
+        env: 
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Check outputs
         run: |
           test "${{ steps.selftest.outputs.secrethook }}" == "secret_detected"
