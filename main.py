@@ -49,8 +49,8 @@ def createIssue(body):
         repo.create_label("LeakedSecret", "FF0000",
                           description="Possible leaked PotentialSecret")
     except GithubException as ex:
-        if (ex.data['errors'][0]['code']=='already_exists'):
-            print("Label already exists...") 
+        if (ex.data['errors'][0]['code'] == 'already_exists'):
+            print("Label already exists...")
         else:
             print(ex)
 
