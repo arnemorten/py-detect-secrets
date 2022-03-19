@@ -3,7 +3,6 @@ import json
 from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
-from pprint import pprint
 from github import Github
 import sys
 # from multiprocessing import freeze_support
