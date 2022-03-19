@@ -11,42 +11,36 @@ import sys
 
 def createOutput(Collection):
     pprint(Collection)
-    commit = os.environ["GITHUB_SHA"] 
-    branch = os.environ["GITHUB_REF"] 
+    commit = os.getenv("GITHUB_SHA", "TestSHA") 
+    branch = os.getenv("GITHUB_REF", "TestBranch") 
     template = f"""### Potential leaked PotentialSecret
 
-We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
-    pprint(Collection)
-    pprint(Collection.json())
-    
-    for PotentialSecret in Collection:
-        print(PotentialSecret)
-        print("----dir___")
-        print(dir(PotentialSecret))
-        
-        secret_type = PotentialSecret.type
-        secret_file = PotentialSecret.filename
-        secret_line = PotentialSecret.line_number
+                We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
+
+    for PotentialSecret in Collection:     
+        secret_type = PotentialSecret[1].type
+        secret_file = PotentialSecret[1].filename
+        secret_line = PotentialSecret[1].line_number
         template += f"""
-**Secret Type:** {secret_type}
-**File:** {secret_file}
-**Line:** {secret_line}"""
+        **Secret Type:** {secret_type}
+        **File:** {secret_file}
+        **Line:** {secret_line}"""
 
     template += f"""
-### Possible mitigations:
+    ### Possible mitigations:
 
-- Immediately change the password and update your code with no hardcoded values. 
-- Mark false positives with an inline comment
-- Update baseline file
+    - Immediately change the password and update your code with no hardcoded values. 
+    - Mark false positives with an inline comment
+    - Update baseline file
 
-For more information check the [docsite](url)
-"""
+    For more information check the [docsite](url)
+    """
 
     return template
 
 def createIssue(body): 
-    g = Github(os.environ["GITHUB_TOKEN"])
-    repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
+    g = Github(os.getenv("GITHUB_TOKEN", "testtoken"))
+    repo = g.get_repo(os.getenv("GITHUB_REPOSITORY", "tesrpo"))
 
     for label in repo.get_labels():
             pprint(label)
@@ -77,7 +71,7 @@ def main():
     #     print('\n')
     # print("----------------------")
     
-    files = json.loads(os.environ["INPUT_NEW_FILES"])
+    files = json.loads(os.getenv("INPUT_NEW_FILES", json.dumps(['secrets.txt'])))
     
     secrets = SecretsCollection()
 
@@ -103,6 +97,8 @@ def main():
         createIssue(my_output)
         print(f"::set-output name=secrethook::{my_output}")
         sys.exit('Secrets detected')
+
+    print("No secrets found")
 
 if __name__ == "__main__":
     main()
