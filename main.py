@@ -48,7 +48,7 @@ def createIssue(body):
         repo.create_label("LeakedSecret", "FF0000",
                           description="Possible leaked PotentialSecret")
     except Exception as exception:
-        print(f"{type(err).__name__} was raised: {err}")
+        print(f"{type(exception).__name__} was raised: {exception}")
         print("Label already exist")
 
     sha = os.environ["GITHUB_SHA"]
