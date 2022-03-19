@@ -3,9 +3,11 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@master
       - name: Self test
+        continue-on-error: true
         id: selftest
         uses: arnemorten/py-detect-secrets@master
         with: 
