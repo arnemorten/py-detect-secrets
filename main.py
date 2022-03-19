@@ -9,6 +9,7 @@ from pprint import pprint
 from github import Github
 import sys
 # from multiprocessing import freeze_support
+
 def createOutput(collection):
     pprint(collection)
     commit = os.environ["GITHUB_SHA"] 
@@ -18,11 +19,15 @@ def createOutput(collection):
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"""
     pprint(collection)
     pprint(collection.json())
-    for secret in collection.json():
-        ssecret = json.loads(secret)
-        secret_type = ssecret['type']
-        secret_file = ssecret['filename']
-        secret_line = ssecret['line_number']
+    
+    for secret in json.loads(collection.json()):
+        print(secret)
+        print("----dir___")
+        print(dir(secret))
+        
+        secret_type = secret['type']
+        secret_file = secret['filename']
+        secret_line = secret['line_number']
         template += f"""
 **Secret Type:** {secret_type}
 **File:** {secret_file}
