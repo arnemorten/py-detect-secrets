@@ -20,7 +20,7 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:"
     pprint(collection)
     pprint(collection.json())
     
-    for secret in json.loads(collection.json()):
+    for secret in collection.json():
         print(secret)
         print("----dir___")
         print(dir(secret))
