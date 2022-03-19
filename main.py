@@ -4,6 +4,7 @@ from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
 from github import Github
+from github import GithubException 
 import sys
 # from multiprocessing import freeze_support
 
@@ -28,10 +29,10 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
 
 """
 
-    template += f"""
+    template += """
 ### Possible mitigations:
 
-- Immediately change the password and update your code with no hardcoded values. 
+- Immediately change the password and update your code with no hardcoded values.
 - Mark false positives with an inline comment
 - Update baseline file
 
@@ -47,9 +48,11 @@ def createIssue(body):
     try:
         repo.create_label("LeakedSecret", "FF0000",
                           description="Possible leaked PotentialSecret")
-    except Exception as exception:
-        print(f"{type(exception).__name__} was raised: {exception}")
-        print("Label already exist")
+    except GithubException as ex:
+        if (ex.data['errors'][0]['code']=='already_exists'):
+            print("Label already exists...") 
+        else:
+            print(ex)
 
     sha = os.environ["GITHUB_SHA"]
     open_issues = repo.get_issues(state='open')
