@@ -7,10 +7,8 @@ jobs:
       - uses: actions/checkout@master
       - name: Self test
         id: selftest
-
-        # Put your action repo here
         uses: arnemorten/py-detect-secrets@master
-
+        with: ['secrets.txt']
       - name: Check outputs
         run: |
-          test "${{ steps.selftest.outputs.myOutput }}" == "Hello world"
+          test "${{ steps.selftest.outputs.secrethook }}" == "secret_detected"
