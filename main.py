@@ -4,7 +4,7 @@ from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
 from github import Github
-from github import GithubException 
+from github import GithubException
 import sys
 # from multiprocessing import freeze_support
 
@@ -32,7 +32,7 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
     template += """
 ### Possible mitigations:
 
-- Immediately change the password and update your code with no hardcoded values.
+- Immediately change the password and update your code.
 - Mark false positives with an inline comment
 - Update baseline file
 
