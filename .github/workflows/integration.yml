@@ -8,7 +8,7 @@ jobs:
       - name: Self test
         id: selftest
         uses: arnemorten/py-detect-secrets@master
-        with: ['secrets.txt']
+        with: "['secrets.txt']"
       - name: Check outputs
         run: |
           test "${{ steps.selftest.outputs.secrethook }}" == "secret_detected"

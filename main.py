@@ -3,23 +3,22 @@ import json
 from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
-from detect_secrets.core.scan import get_files_to_scan
 from pprint import pprint
 from github import Github
 import sys
 # from multiprocessing import freeze_support
 
+
 def createOutput(Collection):
-    pprint(Collection)
-    commit = os.getenv("GITHUB_SHA", "TestSHA") 
-    branch = os.getenv("GITHUB_REF", "TestBranch") 
+    commit = os.getenv("GITHUB_SHA", "TestSHA")
+    branch = os.getenv("GITHUB_REF", "TestBranch")
     template = f"""### Potential secret in commit
 
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
 
 """
 
-    for PotentialSecret in Collection:     
+    for PotentialSecret in Collection:
         secret_type = PotentialSecret[1].type
         secret_file = PotentialSecret[1].filename
         secret_line = PotentialSecret[1].line_number
@@ -37,27 +36,29 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
 - Mark false positives with an inline comment
 - Update baseline file
 
-For more information check the [docsite](url)
+For more information check the docsite
 """
 
     return template
 
-def createIssue(body): 
+
+def createIssue(body):
     g = Github(os.getenv("GITHUB_TOKEN", "testtoken"))
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY", "tesrpo"))
     try:
-        repo.create_label("LeakedSecret", "FF0000", description="Possible leaked PotentialSecret")
+        repo.create_label("LeakedSecret", "FF0000",
+                          description="Possible leaked PotentialSecret")
     except:
         print("Label already exist")
 
-    sha = os.environ["GITHUB_SHA"] 
+    sha = os.environ["GITHUB_SHA"]
     open_issues = repo.get_issues(state='open')
     for issue in open_issues:
-        if sha in issue.title: 
+        if sha in issue.title:
             print("duplicate detected. Skipping creating new issue")
-            return 
+            return
 
-    i = repo.create_issue(
+    repo.create_issue(
         title=f"Possible new secret in commit: {sha}",
         body=body,
         assignee=os.environ["GITHUB_ACTOR"],
@@ -66,35 +67,23 @@ def createIssue(body):
         ]
     )
 
+
 def main():
-    # for k, v in sorted(os.environ.items()):
-    #     print(k+':', v)
-    #     print('\n')
-    # print("----------------------")
-    
-    files = json.loads(os.getenv("INPUT_NEW_FILES", json.dumps(['secrets.txt'])))
-    
+    files = json.loads(os.getenv("INPUT_NEW_FILES",
+                       json.dumps(['secrets.txt'])))
+
     secrets = SecretsCollection()
-    baseline_file = ".secrets.baseline" #hardcode life
+    baseline_file = ".secrets.baseline"  # hardcode life
 
     with default_settings():
-        # secrets.scan_file(r"test.txt")
         for f in files:
             if f != baseline_file:
                 print(f"scanning {f}")
                 secrets.scan_file(f)
 
-    #os.environ["DS_BASELINE_FILE"]
-
     base = baseline.load(baseline.load_from_file(baseline_file))
 
     new_secrets = secrets - base
-
-    # print(json.dumps(base.json(), indent=2))
-    # print("-----------------------------------------")
-    # print(json.dumps(secrets.json(), indent=2))
-    # print("-----------------------------------------")
-    # print(json.dumps(new_secrets.json(), indent=2))
 
     if new_secrets:
         my_output = createOutput(new_secrets)
@@ -104,9 +93,6 @@ def main():
 
     print("No secrets found")
 
+
 if __name__ == "__main__":
     main()
-
-
-
-
