@@ -76,7 +76,7 @@ def main():
                        json.dumps(['secrets.txt'])))
 
     secrets = SecretsCollection()
-    baseline_file = os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline")  
+    baseline_file = os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline")
 
     with default_settings():
         for f in files:
