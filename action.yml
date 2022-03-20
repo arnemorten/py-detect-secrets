@@ -5,7 +5,10 @@ inputs:
     description: "Files to scan"
   skip_issue:
     description: "Skips Issue creation in repo if set to true"
-    default: false
+    default: "false"
+  baseline_file:
+    description: "path to baseline file"
+    default: ".secrets.baseline"
 outputs:
   secrethook:
     description: "Secrets detected"

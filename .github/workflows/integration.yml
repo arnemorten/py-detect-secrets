@@ -11,8 +11,9 @@ jobs:
         id: selftest
         uses: arnemorten/py-detect-secrets@master
         with: 
-          new_files: '["secrets.txt"]'
+          new_files: '["tests/secrets.txt"]'
           skip_issue: 'true'
+          baseline_file: "tests/.secrets.baseline"
         env: 
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Check outputs
