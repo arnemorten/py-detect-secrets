@@ -99,7 +99,7 @@ def main():
     with default_settings():
         for f in files:
             if os.path.normpath(f) != os.path.normpath(baseline_file):
-                # Use normpath to remove redundant seperators 
+                # Use normpath to remove redundant seperators
                 # so baseline is stored in consistant format.
                 secrets.scan_file(os.path.normpath(f))
 
