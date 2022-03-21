@@ -70,10 +70,21 @@ def createIssue(body):
         ]
     )
 
+def getAllFiles():
+    files_list = []
+    for root, dirs, files in os.walk("."):
+        if ".git" in dirs:
+            dirs.remove(".git")
+        for file in files:
+            files_list.append(os.path.join(root, file))
+    return files_list
 
 def main():
+    # Scan all files if NEW_FILES isnt defined. 
+    # This is to workaround a issue where the changed_files action 
+    # doesn't work on first push to a new branch
     files = json.loads(os.getenv("INPUT_NEW_FILES",
-                       json.dumps(['secrets.txt'])))
+                       json.dumps(getAllFiles())))  
 
     secrets = SecretsCollection()
     baseline_file = os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline")
