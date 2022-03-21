@@ -83,8 +83,12 @@ def main():
     # Scan all files if NEW_FILES isnt defined. 
     # This is to workaround a issue where the changed_files action 
     # doesn't work on first push to a new branch
-    files = json.loads(os.getenv("INPUT_NEW_FILES",
-                       json.dumps(getAllFiles())))  
+    print(json.dumps(getAllFiles()))
+    files = os.getenv("INPUT_NEW_FILES") 
+    if files == "" or not files:   
+        files = json.loads(json.dumps(getAllFiles()))
+    else:
+        files = json.loads(files)
 
     secrets = SecretsCollection()
     baseline_file = os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline")
