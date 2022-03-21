@@ -70,6 +70,7 @@ def createIssue(body):
         ]
     )
 
+
 def getAllFiles():
     files_list = []
     for root, dirs, files in os.walk("."):
@@ -80,38 +81,35 @@ def getAllFiles():
                 files_list.append(os.path.join(root, file))
     return files_list
 
+
 def main():
-    # Scan all files if NEW_FILES isnt defined. 
-    # This is to workaround a issue where the changed_files action 
+    # Scan all files if NEW_FILES isnt defined.
+    # This is to workaround a issue where the changed_files action
     # doesn't work on first push to a new branch
-    print(json.dumps(getAllFiles()))
-    files = os.getenv("INPUT_NEW_FILES") 
-    if files == "" or not files:   
+    files = os.getenv("INPUT_NEW_FILES")
+    if files == "" or not files:
         files = json.loads(json.dumps(getAllFiles()))
     else:
         files = json.loads(files)
 
     secrets = SecretsCollection()
-    baseline_file = os.getenv("INPUT_BASELINE_FILE", "./tests/.secrets.baseline")
+    baseline_file = os.getenv("INPUT_BASELINE_FILE",
+                              ".secrets.baseline")
 
     with default_settings():
         for f in files:
-            if os.path.abspath(f) != os.path.abspath(baseline_file):
+            if os.path.normpath(f) != os.path.normpath(baseline_file):
                 # print(f"scanning {f}")
                 # Use normpath to remove redundant seperators so baseline is stored in consistant format.
                 secrets.scan_file(os.path.normpath(f))
 
     base = baseline.load(baseline.load_from_file(baseline_file))
-    for potentialsecret in base:
-        print(potentialsecret[1].filename)
     new_secrets = secrets - base
 
     if new_secrets:
         my_output = createOutput(new_secrets)
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
-            print(my_output)
-            # createIssue(my_output)
-            # disable for debugging
+            createIssue(my_output)
         print("::set-output name=secrethook::secret_detected")
         sys.exit('Secrets detected')
 
