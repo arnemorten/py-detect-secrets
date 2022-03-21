@@ -92,13 +92,14 @@ def main():
         files = json.loads(files)
 
     secrets = SecretsCollection()
-    baseline_file = os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline")
+    baseline_file = os.getenv("INPUT_BASELINE_FILE", "./tests/.secrets.baseline")
 
     with default_settings():
         for f in files:
             if os.path.abspath(f) != os.path.abspath(baseline_file):
                 # print(f"scanning {f}")
-                secrets.scan_file(f)
+                # Use normpath to remove redundant seperators so baseline is stored in consistant format.
+                secrets.scan_file(os.path.normpath(f))
 
     base = baseline.load(baseline.load_from_file(baseline_file))
     for potentialsecret in base:
