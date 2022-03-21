@@ -76,7 +76,8 @@ def getAllFiles():
         if ".git" in dirs:
             dirs.remove(".git")
         for file in files:
-            files_list.append(os.path.join(root, file))
+            if file != os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
+                files_list.append(os.path.join(root, file))
     return files_list
 
 def main():
@@ -95,18 +96,21 @@ def main():
 
     with default_settings():
         for f in files:
-            if f != baseline_file:
-                print(f"scanning {f}")
+            if os.path.abspath(f) != os.path.abspath(baseline_file):
+                # print(f"scanning {f}")
                 secrets.scan_file(f)
 
     base = baseline.load(baseline.load_from_file(baseline_file))
-
+    for potentialsecret in base:
+        print(potentialsecret[1].filename)
     new_secrets = secrets - base
 
     if new_secrets:
         my_output = createOutput(new_secrets)
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
-            createIssue(my_output)
+            print(my_output)
+            # createIssue(my_output)
+            # disable for debugging
         print("::set-output name=secrethook::secret_detected")
         sys.exit('Secrets detected')
 
