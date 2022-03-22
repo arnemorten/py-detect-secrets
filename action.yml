@@ -9,6 +9,8 @@ inputs:
   baseline_file:
     description: "path to baseline file"
     default: ".secrets.baseline"
+  docs_url:
+    description: "Will link to this URL from the issues created"
 outputs:
   secrethook:
     description: "Secrets detected"

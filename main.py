@@ -12,6 +12,7 @@ import sys
 def createOutput(Collection):
     commit = os.getenv("GITHUB_SHA", "TestSHA")
     branch = os.getenv("GITHUB_REF", "TestBranch")
+    docs_url = os.getenv("INPUT_DOCS_URL", "https://github.com/Yelp/detect-secrets")
     template = f"""### Potential secret in commit
 
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
@@ -36,7 +37,7 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
 - Mark false positives with an inline comment
 - Update baseline file
 
-For more information check the docsite
+For more information check the [{docs_url}](documentation)
 """
 
     return template
