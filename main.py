@@ -30,7 +30,7 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
 
 """
 
-    template += """
+    template += f"""
 ### Possible mitigations:
 
 - Immediately change the password and update your code.
