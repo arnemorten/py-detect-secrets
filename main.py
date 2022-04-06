@@ -112,6 +112,7 @@ def main():
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
             createIssue(my_output)
         print("::set-output name=secrethook::secret_detected")
+        print(my_output)
         sys.exit('Secrets detected')
 
     print("No secrets found")
