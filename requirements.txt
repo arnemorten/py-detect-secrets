@@ -1,4 +1,3 @@
 detect-secrets
-prettyprint
 pygithub
 cffi
