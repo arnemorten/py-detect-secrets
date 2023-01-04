@@ -12,7 +12,7 @@ import sys
 def createOutput(Collection):
     commit = os.getenv("GITHUB_SHA", "TestSHA")
     branch = os.getenv("GITHUB_REF", "TestBranch")
-    docs_url = os.getenv("INPUT_DOCS_URL", "https://github.com/Yelp/detect-secrets")
+    docs_url = os.getenv("INPUT_DOCS_URL", "Yelp/detect-secrets")
     template = f"""### Potential secret in commit
 
 We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
@@ -112,10 +112,10 @@ def main():
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
             createIssue(my_output)
         print("::set-output name=secrethook::secret_detected")
-        
+
         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
             print("secrethook=secret_detected", file=fh)
-            
+
         print(my_output)
         sys.exit('Secrets detected')
 
