@@ -112,6 +112,10 @@ def main():
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
             createIssue(my_output)
         print("::set-output name=secrethook::secret_detected")
+        
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+            print("secrethook=secret_detected", file=fh)
+            
         print(my_output)
         sys.exit('Secrets detected')
 
