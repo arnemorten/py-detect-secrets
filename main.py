@@ -93,6 +93,7 @@ def filter_files(files, exceptions=[]):
             if re.match(exception, file):
                 break
         files_list.append(file)
+    return files_list
 
 
 def main():
