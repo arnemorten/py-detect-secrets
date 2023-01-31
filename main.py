@@ -87,13 +87,12 @@ def getAllFiles():
 def filter_files(files, exceptions=[]):
     files_list = []
     for file in files:
-        exclude = False
+        if file == os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
+            break
         for exception in exceptions:
             if re.match(exception, file):
-                exclude = True
                 break
-        if not exclude or file != os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
-            files_list.append(file)
+        files_list.append(file)
 
 
 def main():
@@ -118,7 +117,7 @@ def main():
         files = json.loads(files)
 
     files = filter_files(files, exceptions)
-    
+
     secrets = SecretsCollection()
     baseline_file = os.getenv("INPUT_BASELINE_FILE",
                               ".secrets.baseline")
