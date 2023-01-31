@@ -19,7 +19,7 @@ jobs:
       - name: Check outputs
         run: |
           test "${{ steps.selftest.outputs.secrethook }}" == "secret_detected"
-      - name: Self test
+      - name: Test do not find secret when exception defined
         continue-on-error: true
         id: exceptiontest
         uses: arnemorten/py-detect-secrets@master
@@ -27,7 +27,7 @@ jobs:
           new_files: '["tests/secrets.txt"]'
           skip_issue: 'true'
           baseline_file: "tests/.secrets.baseline"
-          exceptions: '["*secrets.txt"]'
+          exceptions: '[".*secrets\.txt.*"]'
         env: 
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Check outputs
