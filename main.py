@@ -124,11 +124,12 @@ def main():
                               ".secrets.baseline")
 
     with default_settings():
-        for f in files:
-            if os.path.normpath(f) != os.path.normpath(baseline_file):
-                # Use normpath to remove redundant seperators
-                # so baseline is stored in consistant format.
-                secrets.scan_file(os.path.normpath(f))
+        if files is not None:
+            for f in files:
+                if os.path.normpath(f) != os.path.normpath(baseline_file):
+                    # Use normpath to remove redundant seperators
+                    # so baseline is stored in consistant format.
+                    secrets.scan_file(os.path.normpath(f))
 
     base = baseline.load(baseline.load_from_file(baseline_file))
     new_secrets = secrets - base
