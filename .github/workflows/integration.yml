@@ -22,7 +22,7 @@ jobs:
       - name: Test do not find secret when exception defined
         continue-on-error: true
         id: exceptiontest
-        uses: arnemorten/py-detect-secrets@master
+        uses: arnemorten/py-detect-secrets@exceptions
         with: 
           new_files: '["tests/secrets.txt"]'
           skip_issue: 'true'
