@@ -1,5 +1,7 @@
 import os
 import json
+import re
+import ast
 from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
@@ -72,13 +74,18 @@ def createIssue(body):
     )
 
 
-def getAllFiles():
+def getAllFiles(exceptions=[]):
     files_list = []
     for root, dirs, files in os.walk("."):
         if ".git" in dirs:
             dirs.remove(".git")
         for file in files:
-            if file != os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
+            exclude = False
+            for exception in exceptions:
+                if re.match(exception, file):
+                    exclude = True
+                    break
+            if not exclude or file != os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
                 files_list.append(os.path.join(root, file))
     return files_list
 
@@ -88,8 +95,19 @@ def main():
     # This is to workaround a issue where the changed_files action
     # doesn't work on first push to a new branch
     files = os.getenv("INPUT_NEW_FILES")
+    exceptions = os.getenv("INPUT_EXCEPTIONS")
+    if exceptions:
+        try:
+            exceptions = ast.literal_eval(exceptions)
+            if not isinstance(exceptions, list):
+                raise ValueError
+        except (ValueError, SyntaxError):
+            raise ValueError("INPUT_EXCEPTIONS must be a list of strings")
+    else:
+        exceptions = []
+        
     if files == "" or not files:
-        files = json.loads(json.dumps(getAllFiles()))
+        files = json.loads(json.dumps(getAllFiles(exceptions)))
     else:
         files = json.loads(files)
 
