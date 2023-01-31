@@ -74,20 +74,24 @@ def createIssue(body):
     )
 
 
-def getAllFiles(exceptions=[]):
+def getAllFiles():
     files_list = []
     for root, dirs, files in os.walk("."):
         if ".git" in dirs:
             dirs.remove(".git")
-        for file in files:
+        files_list.append(os.path.join(root, file))       
+    return files_list
+
+def filter_files(files, exceptions=[]):
+    files_list = []
+    for file in files:
             exclude = False
             for exception in exceptions:
                 if re.match(exception, file):
                     exclude = True
                     break
             if not exclude or file != os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
-                files_list.append(os.path.join(root, file))
-    return files_list
+                files_list.append(file)
 
 
 def main():
@@ -107,9 +111,13 @@ def main():
         exceptions = []
         
     if files == "" or not files:
-        files = json.loads(json.dumps(getAllFiles(exceptions)))
+        files = json.loads(json.dumps(getAllFiles()))
     else:
         files = json.loads(files)
+
+    files = filter_files(files, exceptions)
+
+        
 
     secrets = SecretsCollection()
     baseline_file = os.getenv("INPUT_BASELINE_FILE",
