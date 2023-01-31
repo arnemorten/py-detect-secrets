@@ -89,10 +89,13 @@ def filter_files(files, exceptions=[]):
     for file in files:
         if file == os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
             break
+        exclude = False
         for exception in exceptions:
             if re.match(exception, file):
+                exclude = True
                 break
-        files_list.append(file)
+        if not exclude:
+            files_list.append(file)
     return files_list
 
 
