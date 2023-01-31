@@ -1,5 +1,7 @@
 import os
 import json
+import re
+import ast
 from detect_secrets import SecretsCollection
 from detect_secrets.settings import default_settings
 from detect_secrets.core import baseline
@@ -75,12 +77,22 @@ def createIssue(body):
 def getAllFiles():
     files_list = []
     for root, dirs, files in os.walk("."):
-        if ".git" in dirs:
-            dirs.remove(".git")
         for file in files:
-            if file != os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
-                files_list.append(os.path.join(root, file))
-    return files_list
+            if ".git" in dirs:
+                dirs.remove(".git")
+            files_list.append(os.path.join(root, file))
+        return files_list
+
+
+def filter_files(files, exceptions=[]):
+    files_list = []
+    for file in files:
+        if file == os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
+            break
+        for exception in exceptions:
+            if re.match(exception, file):
+                break
+        files_list.append(file)
 
 
 def main():
@@ -88,21 +100,35 @@ def main():
     # This is to workaround a issue where the changed_files action
     # doesn't work on first push to a new branch
     files = os.getenv("INPUT_NEW_FILES")
+    exceptions = os.getenv("INPUT_EXCEPTIONS")
+    if exceptions:
+        try:
+            exceptions = ast.literal_eval(exceptions)
+            if not isinstance(exceptions, list):
+                raise ValueError
+        except (ValueError, SyntaxError):
+            raise ValueError("INPUT_EXCEPTIONS must be a list of strings")
+    else:
+        exceptions = []
+
     if files == "" or not files:
         files = json.loads(json.dumps(getAllFiles()))
     else:
         files = json.loads(files)
+
+    files = filter_files(files, exceptions)
 
     secrets = SecretsCollection()
     baseline_file = os.getenv("INPUT_BASELINE_FILE",
                               ".secrets.baseline")
 
     with default_settings():
-        for f in files:
-            if os.path.normpath(f) != os.path.normpath(baseline_file):
-                # Use normpath to remove redundant seperators
-                # so baseline is stored in consistant format.
-                secrets.scan_file(os.path.normpath(f))
+        if files is not None:
+            for f in files:
+                if os.path.normpath(f) != os.path.normpath(baseline_file):
+                    # Use normpath to remove redundant seperators
+                    # so baseline is stored in consistant format.
+                    secrets.scan_file(os.path.normpath(f))
 
     base = baseline.load(baseline.load_from_file(baseline_file))
     new_secrets = secrets - base
@@ -111,7 +137,6 @@ def main():
         my_output = createOutput(new_secrets)
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
             createIssue(my_output)
-        print("::set-output name=secrethook::secret_detected")
 
         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
             print("secrethook=secret_detected", file=fh)
