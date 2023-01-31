@@ -9,6 +9,9 @@ inputs:
   baseline_file:
     description: "path to baseline file"
     default: ".secrets.baseline"
+  exceptions:
+    description: "list of exceptions using regular exceptions."
+    default: "[]"
   docs_url:
     description: "Will link to this URL from the issues created"
 outputs:
