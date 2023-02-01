@@ -39,7 +39,7 @@ We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
 - Mark false positives with an inline comment
 - Update baseline file
 
-For more information check the [{docs_url}](documentation)
+For more information check the [documentation]({docs_url})
 """
 
     return template
