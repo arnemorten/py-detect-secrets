@@ -44,7 +44,7 @@ jobs:
 | `new_files`  | list of files in json format    |
 | `skip_issue`  | doesnt create issue if defined to `true`   |
 | `docs_url`  | Will link to this URL from the issues created |
-
+| `exceptions`  | List of regular expressions to not scan |
 
 ### Outputs
 
