@@ -8,44 +8,34 @@ from detect_secrets.core import baseline
 from github import Github
 from github import GithubException
 import sys
-# from multiprocessing import freeze_support
 
 
-def createOutput(Collection):
+def generate_secret_report(collection: SecretsCollection) -> str:
     commit = os.getenv("GITHUB_SHA", "TestSHA")
     branch = os.getenv("GITHUB_REF", "TestBranch")
     docs_url = os.getenv("INPUT_DOCS_URL", "Yelp/detect-secrets")
-    template = f"""### Potential secret in commit
+    template = (f"### Potential secret in commit\n\n"
+                f"We have detected one or more secrets in commit: **{commit}** in :\n"
+                f"**{branch}**:\n\n")
 
-We have detected one or more secrets in commit: **{commit}** in : **{branch}**:
+    for potential_secret in collection:
+        secret_type = potential_secret[1].type
+        secret_file = potential_secret[1].filename
+        secret_line = potential_secret[1].line_number
+        template += (f"\n**Secret Type:** {secret_type}\n"
+                     f"**File:** {secret_file}\n"
+                     f"**Line:** {secret_line}\n\n")
 
-"""
-
-    for PotentialSecret in Collection:
-        secret_type = PotentialSecret[1].type
-        secret_file = PotentialSecret[1].filename
-        secret_line = PotentialSecret[1].line_number
-        template += f"""
-**Secret Type:** {secret_type}
-**File:** {secret_file}
-**Line:** {secret_line}
-
-"""
-
-    template += f"""
-### Possible mitigations:
-
-- Immediately change the password and update your code.
-- Mark false positives with an inline comment
-- Update baseline file
-
-For more information check the [documentation]({docs_url})
-"""
+    template += (f"\n### Possible mitigations:\n\n"
+                 "- Immediately change the password and update your code.\n"
+                 "- Mark false positives with an inline comment\n"
+                 "- Update baseline file\n\n"
+                 f"For more information check the [documentation]({docs_url})\n")
 
     return template
 
 
-def createIssue(body):
+def create_issue(body: str) -> None:
     g = Github(os.getenv("GITHUB_TOKEN", "testtoken"))
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY", "tesrpo"))
     try:
@@ -74,18 +64,21 @@ def createIssue(body):
     )
 
 
-def getAllFiles():
+def get_all_files() -> list:
     files_list = []
     for root, dirs, files in os.walk("."):
+        if ".git" in dirs:
+            dirs.remove(".git")
         for file in files:
-            if ".git" in dirs:
-                dirs.remove(".git")
             files_list.append(os.path.join(root, file))
-        return files_list
+    return files_list
 
 
-def filter_files(files, exceptions=[]):
-    files_list = []
+def filter_files(files: list, exceptions: list = None) -> list:
+    if exceptions is None:
+        exceptions = []
+
+    filtered_files = []
     for file in files:
         if file == os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline"):
             break
@@ -95,19 +88,19 @@ def filter_files(files, exceptions=[]):
                 exclude = True
                 break
         if not exclude:
-            files_list.append(file)
-    return files_list
+            filtered_files.append(file)
+    return filtered_files
 
 
 def main():
-    # Scan all files if NEW_FILES isnt defined.
-    # This is to workaround a issue where the changed_files action
-    # doesn't work on first push to a new branch
-    files = os.getenv("INPUT_NEW_FILES")
-    exceptions = os.getenv("INPUT_EXCEPTIONS")
-    if exceptions:
+    # Gather environment variables
+    files_env = os.getenv("INPUT_NEW_FILES")
+    exceptions_env = os.getenv("INPUT_EXCEPTIONS")
+
+    # Handle exceptions
+    if exceptions_env:
         try:
-            exceptions = ast.literal_eval(exceptions)
+            exceptions = ast.literal_eval(exceptions_env)
             if not isinstance(exceptions, list):
                 raise ValueError
         except (ValueError, SyntaxError):
@@ -115,32 +108,30 @@ def main():
     else:
         exceptions = []
 
-    if files == "" or not files:
-        files = json.loads(json.dumps(getAllFiles()))
+    # Handle files
+    if files_env == "" or not files_env:
+        files = get_all_files()
     else:
-        files = json.loads(files)
+        files = json.loads(files_env)
 
     files = filter_files(files, exceptions)
 
     secrets = SecretsCollection()
-    baseline_file = os.getenv("INPUT_BASELINE_FILE",
-                              ".secrets.baseline")
+    baseline_file = os.getenv("INPUT_BASELINE_FILE", ".secrets.baseline")
 
     with default_settings():
-        if files is not None:
-            for f in files:
-                if os.path.normpath(f) != os.path.normpath(baseline_file):
-                    # Use normpath to remove redundant seperators
-                    # so baseline is stored in consistant format.
-                    secrets.scan_file(os.path.normpath(f))
+        for f in files:
+            normalized_file = os.path.normpath(f)
+            if normalized_file != os.path.normpath(baseline_file):
+                secrets.scan_file(normalized_file)
 
     base = baseline.load(baseline.load_from_file(baseline_file))
     new_secrets = secrets - base
 
     if new_secrets:
-        my_output = createOutput(new_secrets)
+        my_output = generate_secret_report(new_secrets)
         if os.getenv("INPUT_SKIP_ISSUE", "false") == "false":
-            createIssue(my_output)
+            create_issue(my_output)
 
         print("::set-output name=secrethook::secret_detected")
 
@@ -148,7 +139,7 @@ def main():
             print("secrethook=secret_detected", file=fh)
 
         print(my_output)
-        sys.exit('Secrets detected')
+        sys.exit(1)  # Exiting with a non-zero status code indicates an error
 
     print("No secrets found")
 
